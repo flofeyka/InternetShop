@@ -2,22 +2,20 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const tokenService = require("./token-service");
 const UserDto = require("../dtos/userDto");
-const Token = require("../models/Token");
 const ApiError = require ("../exceptions/api-error");
 
 module.exports = new class authService {
     async login(email, password) {
         const userFound = await User.findOne({email});
-        const userDto = new UserDto(userFound)
         if (!userFound) {
-            throw ApiError.BadRequest(400, "Wrong email or password")
+            throw ApiError.BadRequest("Wrong email or password")
         }
 
         const passwordCompared = await bcrypt.compare(password, userFound.passwordHash);
         if (!passwordCompared) {
-            throw ApiError.BadRequest(400, "Wrong email or password")
+            throw ApiError.BadRequest("Wrong email or password")
         }
-
+        const userDto = new UserDto(userFound)
         const {refreshToken, accessToken} = tokenService.generateTokens({...userDto});
         await tokenService.saveToken(userDto.id, refreshToken);
 
@@ -26,14 +24,14 @@ module.exports = new class authService {
         }
     }
 
-    async register(name, email, password) {
+    async register(name, email, phoneNumber, password) {
         const userFound = await User.findOne({email});
         if (userFound) {
-            throw ApiError.BadRequest(400, "User with this email is already exist")
+            throw ApiError.BadRequest("User with this email is already exist")
         }
         const passwordHash = await bcrypt.hash(password, 10);
         const createdUser = await User.create({
-            name, email, passwordHash, createdAt: new Date()
+            name, email, phoneNumber, passwordHash, createdAt: new Date()
         });
 
         const userDto = new UserDto(createdUser);
@@ -73,12 +71,16 @@ module.exports = new class authService {
             return deletedToken.deletedCount === 1;
         }
 
-        throw ApiError.BadRequest(400, "Invalid token")
+        throw ApiError.BadRequest("Invalid token")
     }
 
     async updatePassword(id, oldPassword, password) {
         const user = await User.findById(id);
-        const passwordCompare = await bcrypt.compare(User.passwordHash, oldPassword);
+        const passwordCompare = await bcrypt.compare(oldPassword, user.passwordHash);
+        if(!passwordCompare) {
+            throw ApiError.BadRequest("Wrong old password");
+        }
+
         if(passwordCompare) {
             const newPassword = await bcrypt.hash(password, 10);
             const user = await User.updateOne({_id: id}, {
@@ -86,6 +88,5 @@ module.exports = new class authService {
             })
             return user.modifiedCount === 1;
         }
-        return undefined;
     }
 }

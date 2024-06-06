@@ -29,5 +29,19 @@ module.exports = new class profileService {
 
     }
 
+    async getUserInfoById(id) {
+        if(!id) {
+            throw ApiError.BadRequest("Wrong user id");
+        }
+
+        const profileInfo = await User.findById(id);
+        if(!profileInfo) {
+            throw ApiError.notFound(404, "User with this id is not found");
+        }
+
+        const userDto = new UserDto(profileInfo);
+        return userDto;
+    }
+
 
 }
