@@ -6,3 +6,4 @@ const profileRouter = Router();
 module.exports = profileRouter;
 
 profileRouter.put("/updateProfileData", authMiddleware, profileController.updateUserInfo);
+profileRouter.get("/getUserById/:id", authMiddleware, profileController.getUserInfoById);

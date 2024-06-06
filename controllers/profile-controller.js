@@ -11,13 +11,12 @@ module.exports = new class profileController {
         }
     }
 
-    updatePassword(req, res, next) {
+    async getUserInfoById(req, res, next) {
         try {
-
+            const profileData = await profileService.getUserInfoById(req.params.id);
+            res.status(200).json(profileData);
         } catch (e) {
-            next(e)
+            next(e);
         }
     }
-
-
 }

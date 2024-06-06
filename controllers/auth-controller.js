@@ -11,21 +11,21 @@ class authController {
             });
 
             return res.json(usersData);
-        } catch(e) {
+        } catch (e) {
             next(e);
         }
     }
 
     async register(req, res, next) {
         try {
-            const {name, email, password} = req.body;
-            const data = await authService.register(name, email, password);
+            const {name, email, phoneNumber, password} = req.body;
+            const data = await authService.register(name, email, phoneNumber, password);
             res.cookie("refreshToken", data.refreshToken, {
                 httpOnly: true,
                 maxAge: 30 * 24 * 60 * 60 * 1000
             });
             return res.json(data);
-        } catch(e) {
+        } catch (e) {
             next(e)
         }
     }
@@ -50,7 +50,21 @@ class authController {
             const isDeleted = await authService.logout(refreshToken);
             res.clearCookie("refreshToken")
             return res.json(isDeleted ? "Logout is completed successfully" : "Error while logout")
-        } catch(e) {
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async updatePassword(req, res, next) {
+        try {
+            const {oldPassword, password} = req.body;
+            const isUpdated = await authService.updatePassword(req.user.id, oldPassword, password);
+            return res.status(isUpdated ? 200 : 400).json(isUpdated ? {
+                message: "Password is successfully changed"
+            } : {
+                message: "Error while updating password"
+            })
+        } catch (e) {
             next(e);
         }
     }
