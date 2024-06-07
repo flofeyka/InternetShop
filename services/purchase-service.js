@@ -11,7 +11,8 @@ module.exports = new class purchaseService {
         let purchasesArray = [];
         for(let i = 0; i < user.purchasesHistory.length; i++) {
             const historyItem = await Purchase.findById(user.purchasesHistory[i]);
-            purchasesArray.push(await historyItem)
+            const purchaseDto = new PurchaseDto(historyItem);
+            purchasesArray.push(purchaseDto);
         }
         return purchasesArray;
     }

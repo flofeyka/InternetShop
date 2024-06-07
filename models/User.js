@@ -8,6 +8,8 @@ const UserSchema = new Schema({
     purchasesHistory: {type: Array, required: true, ref: "Purchase"},
     ownProducts: {type: Array, required: true, ref: "Purchase"},
     myOrders: {type: Array, required: true, ref: "Order"},
+    favourites: {type: Array, ref: "Purchase"},
+    cart: {type: Array, required: true, ref: "Purchase"},
     ordersOnMyProducts: {type: Array, required: true, ref: "Order"},
     createdAt: {type: Date, required: true}
 });
