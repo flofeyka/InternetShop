@@ -6,6 +6,15 @@ const Order = require("../models/Order");
 const OrderDto = require("../dtos/orderDto")
 
 module.exports = new class purchaseService {
+    async getALl(sort = "popularity") {
+        const purchasesFound = await Purchase.find({});
+        switch(sort){
+            case "popularity":
+                purchasesFound.sort((a, b) => a.viewsCount > b.viewsCount ? -1 : 0);
+        }
+
+    }
+
     async getHistory(id) {
         const user = await User.findById(id);
         let purchasesArray = [];
