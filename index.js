@@ -7,6 +7,8 @@ const mongoose = require("mongoose");
 const purchaseRouter = require("./routes/purchaseRouter");
 const favouriteRouter = require("./routes/favouriteRouter");
 const errorMiddleware = require("./middlewares/error-middleware");
+const cartRouter = require("./routes/cartRouter");
+
 const app = express();
 const port = 5000;
 
@@ -16,7 +18,8 @@ app.use(cors({credentials: true, origin: true}));
 app.use("/api/auth", authRouter);
 app.use("/api/purchases", purchaseRouter);
 app.use("/api/profile", profileRouter);
-app.use("/api/favourites", favouriteRouter)
+app.use("/api/favourites", favouriteRouter);
+app.use("/api/cart", cartRouter);
 app.use(errorMiddleware);
 
 const start = () => {

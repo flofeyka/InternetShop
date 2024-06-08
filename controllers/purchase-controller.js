@@ -1,6 +1,14 @@
 const purchaseService = require("../services/purchase-service");
 
 module.exports = new class purchaseController {
+    async getAll(req, res, next) {
+        try {
+
+        } catch (e) {
+            next(e);
+        }
+    }
+
     async getHistory(req, res, next) {
         try {
             const purchases = await purchaseService.getHistory(req.user.id);
