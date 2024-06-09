@@ -6,19 +6,34 @@ const Order = require("../models/Order");
 const OrderDto = require("../dtos/orderDto")
 
 module.exports = new class purchaseService {
-    async getALl(sort = "popularity") {
-        const purchasesFound = await Purchase.find({});
-        switch(sort){
+    async getAll(sort = "popularity", search = "", page = 1, pageSize = 10) {
+        const purchasesFound = await Purchase.find({name: {$regex: search}}, {}, {skip: Math.ceil((page-1)*pageSize) + 1, limit: pageSize});
+        switch (sort) {
             case "popularity":
                 purchasesFound.sort((a, b) => a.viewsCount > b.viewsCount ? -1 : 0);
+                break;
+            case "expensive":
+                purchasesFound.sort((a, b) => a.price > b.price ? 0 : -1);
+                break;
+            case "cheap":
+                purchasesFound.sort((a, b) => a.price > b.price ? -1 : 0);
+                break;
+            default:
+                break;
         }
 
+        let purchasesArray = [];
+        for(let i = 0; i < purchasesFound.length; i++) {
+            const purchaseDto = new PurchaseDto(purchasesFound[i]);
+            purchasesArray.push(purchaseDto);
+        }
+        return purchasesArray;
     }
 
     async getHistory(id) {
         const user = await User.findById(id);
         let purchasesArray = [];
-        for(let i = 0; i < user.purchasesHistory.length; i++) {
+        for (let i = 0; i < user.purchasesHistory.length; i++) {
             const historyItem = await Purchase.findById(user.purchasesHistory[i]);
             const purchaseDto = new PurchaseDto(historyItem);
             purchasesArray.push(purchaseDto);
@@ -27,7 +42,7 @@ module.exports = new class purchaseService {
     }
 
     async clearHistory(id) {
-        const clearHistory = await User.updateOne({_id: id}, { purchasesHistory: [] });
+        const clearHistory = await User.updateOne({_id: id}, {purchasesHistory: []});
         return clearHistory.modifiedCount === 1;
     }
 
@@ -39,7 +54,7 @@ module.exports = new class purchaseService {
         const purchaseQuantityModified = await Purchase.updateOne({_id: purchaseId}, {
             quantity: purchase.quantity - orderCount
         })
-        if(purchaseQuantityModified.modifiedCount !== 1) {
+        if (purchaseQuantityModified.modifiedCount !== 1) {
             throw ApiError.notFound(404, "Cannot to order the purchase")
         }
         const order = await Order.create({
@@ -74,7 +89,7 @@ module.exports = new class purchaseService {
             ordersCount: purchase.ordersCount + 1
         })
 
-        if(orderToWaiter.modifiedCount !== 1) {
+        if (orderToWaiter.modifiedCount !== 1) {
             throw ApiError.BadRequest("Cannot order the product")
         }
 
@@ -89,7 +104,7 @@ module.exports = new class purchaseService {
         const purchaseDto = new PurchaseDto(purchase);
         const user = await User.findById(userId);
         const purchaseInHistoryFound = user.purchasesHistory.find(i => i.toString() === purchase.id);
-        if(!purchaseInHistoryFound) {
+        if (!purchaseInHistoryFound) {
             await User.updateOne({_id: userId}, {
                 $push: {
                     purchasesHistory: purchaseDto.id
