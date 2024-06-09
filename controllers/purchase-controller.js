@@ -3,7 +3,9 @@ const purchaseService = require("../services/purchase-service");
 module.exports = new class purchaseController {
     async getAll(req, res, next) {
         try {
-
+            const {search, sort, page, pageSize} = req.query;
+            const purchases = await purchaseService.getAll(sort, search, Number(page), Number(pageSize));
+            return res.json(purchases);
         } catch (e) {
             next(e);
         }

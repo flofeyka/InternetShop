@@ -49,7 +49,6 @@ module.exports = new class authService {
     async refresh(refreshToken) {
         const usersData = tokenService.validateRefreshToken(refreshToken);
         const tokenFound = tokenService.findToken(refreshToken);
-        console.log(usersData);
         if(!usersData || !tokenFound) {
             throw ApiError.notFound(404, "Token is not found")
         }

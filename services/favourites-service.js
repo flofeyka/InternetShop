@@ -19,7 +19,7 @@ module.exports = new class favouritesService {
 
     async addOne(userId, id) {
         const user = await User.findById(userId);
-        const favoritesFound = user.favourites.find(i => i.id === id);
+        const favoritesFound = user.favourites.find(i => i === id);
         if(favoritesFound) {
             throw ApiError.BadRequest("This product is already added");
         }

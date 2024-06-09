@@ -1,6 +1,15 @@
 const cartService = require("../services/cart-service");
 
 module.exports = new class cartController {
+    async updateProductCount(req, res, next) {
+        try {
+            const countUpdated = await cartService.updateProductCount(req.user.id, req.body.id, req.body.count);
+            return res.json(countUpdated);
+        } catch(e) {
+            next(e);
+        }
+    }
+
     async getAll(req, res, next) {
         try {
             const cart = await cartService.getAll(req.user.id);
