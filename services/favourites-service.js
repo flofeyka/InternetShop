@@ -26,8 +26,8 @@ module.exports = new class favouritesService {
         const addFavourite = await User.updateOne({_id: userId}, {
             $push: {favourites: id}
         });
-
-        return addFavourite.modifiedCount === 1;
+        const product = await Purchase.findById(id);
+        return new PurchaseDto(product)
     }
 
     async deleteOne(userId, id) {

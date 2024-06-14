@@ -10,3 +10,4 @@ purchaseRouter.get("/getHistory", authMiddleware, purchaseController.getHistory)
 purchaseRouter.post("/haveOrder", authMiddleware, purchaseController.Order);
 purchaseRouter.get("/getOneById/:id", authMiddleware, purchaseController.getOneById);
 purchaseRouter.delete("/clearHistory", authMiddleware, purchaseController.clearHistory);
+purchaseRouter.post("/takeOrder/:id", authMiddleware, purchaseController.takeAnOrder);

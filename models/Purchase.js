@@ -4,7 +4,7 @@ const purchaseSchema = new Schema({
     name: {type: String, required: true},
     owner: {type: Schema.Types.ObjectId, ref: "User"},
     description: {type: String},
-    ordersCount: {type: Number},
+    ordersCount: {type: Number, default: 0},
     viewsCount: {type: Number, required: true},
     price: {type: Number, required: true},
     quantity: {type: Number, required: true},

@@ -22,10 +22,28 @@ module.exports = new class purchaseController {
 
     async Order(req, res, next) {
         try {
-            const {purchaseId, orderCount} = req.body;
-            const newOrder = await purchaseService.HaveOrder(req.user.id, purchaseId, orderCount);
+            const {id, orderCount, address, deadline} = req.body;
+            const newOrder = await purchaseService.HaveOrder(req.user.id, id, orderCount, address, deadline);
             return res.json(newOrder);
         } catch (e) {
+            next(e);
+        }
+    }
+
+    async takeAnOrder(req, res, next) {
+        try {
+            const isTakenOrder = await purchaseService.takeAnOrder(req.user.id, req.params.id);
+            return res.status(isTakenOrder ? 200 : 500).json(200 && "The order is successfully taken");
+        } catch(e) {
+            next(e);
+        }
+    }
+
+    async cancelOrder(req, res, next) {
+        try {
+           const isOrderCanceled = await purchaseService.cancelOrder(req.user.id, req.params.id);
+           return res.status(isOrderCanceled ? 200 : 500).json(isOrderCanceled && "The order is successfully cancelled");
+        } catch(e) {
             next(e);
         }
     }

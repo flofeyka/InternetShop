@@ -46,21 +46,26 @@ module.exports = new class purchaseService {
         return clearHistory.modifiedCount === 1;
     }
 
-    async HaveOrder(userId, purchaseId, orderCount) {
-        const purchase = await Purchase.findById(purchaseId);
+    async HaveOrder(userId, id, orderCount, address, deadline) {
+        const purchase = await Purchase.findById(id);
         if (!purchase) {
             throw ApiError.notFound(404, "Purchase is not found");
         }
-        const purchaseQuantityModified = await Purchase.updateOne({_id: purchaseId}, {
+        if(purchase.ordersCount < orderCount) {
+            throw ApiError.BadRequest("This product is less than count you want to order")
+        }
+        const purchaseQuantityModified = await Purchase.updateOne({_id: id}, {
             quantity: purchase.quantity - orderCount
         })
         if (purchaseQuantityModified.modifiedCount !== 1) {
             throw ApiError.notFound(404, "Cannot to order the purchase")
         }
         const order = await Order.create({
-            purchaseId,
+            purchaseId: id,
             waiter: userId,
-            finalPrice: purchase.price * orderCount + purchase.price * orderCount * 0.07,
+            finalPrice: purchase.price * orderCount,
+            address,
+            deadline,
             createdAt: Date.now()
         });
 
@@ -85,16 +90,59 @@ module.exports = new class purchaseService {
             }
         });
 
-        await Purchase.updateOne({_id: purchaseId}, {
-            ordersCount: purchase.ordersCount + 1
+        const purchaseOrderCountUpdated = await Purchase.updateOne({_id: id}, {
+            ordersCount: purchase.ordersCount + orderCount
         })
 
-        if (orderToWaiter.modifiedCount !== 1) {
+        if (orderToWaiter.modifiedCount !== 1 || purchaseOrderCountUpdated.modifiedCount !== 1) {
             throw ApiError.BadRequest("Cannot order the product")
         }
 
         return orderDto;
     }
+
+    async takeAnOrder(userId, id) {
+        const orderFound = await Order.findById(id);
+        if(!orderFound || orderFound.waiter.toString() !== userId.toString()) {
+            throw ApiError.BadRequest("Wrong order id");
+        }
+
+        if(orderFound.isTaken) {
+            throw ApiError.BadRequest("This order is already taken")
+        }
+        const orderTaken = await Order.updateOne({
+            _id: id
+        }, {
+            isTaken: true
+        });
+
+        const myOrdersDeleted = await User.updateOne({_id: userId}, {
+            $pull: { myOrders: orderFound._id }
+        })
+
+
+        if(orderTaken.modifiedCount !== 1 || myOrdersDeleted.modifiedCount !== 1) {
+            throw ApiError.BadRequest("Cannot take the product");
+        }
+
+        return orderTaken.modifiedCount === 1 && myOrdersDeleted.modifiedCount === 1;
+    }
+
+    async cancelOrder(userId, id) {
+        const orderFound = await Order.findById(id);
+        if(orderFound.waiter.toString() !== userId || !orderFound) {
+            throw ApiError.BadRequest("Wrong order id");
+        }
+        const orderCanceled = await Order.updateOne({
+            _id: id
+        }, {
+            canceled: false
+        });
+
+        return orderCanceled.modifiedCount === 1;
+    }
+
+    async
 
     async getPurchaseById(userId, id) {
         const purchase = await Purchase.findById(id);
