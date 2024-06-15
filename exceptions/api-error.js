@@ -13,7 +13,11 @@ module.exports = class ApiError extends Error {
 
     }
 
-    static notFound(_, message = "Not found") {
+    static invalidCaptcha() {
+        return new ApiError(400, "Invalid captcha");
+    }
+
+    static notFound(message = "Not found") {
         return new ApiError(404, message);
     }
 

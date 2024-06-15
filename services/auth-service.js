@@ -50,7 +50,7 @@ module.exports = new class authService {
         const usersData = tokenService.validateRefreshToken(refreshToken);
         const tokenFound = tokenService.findToken(refreshToken);
         if(!usersData || !tokenFound) {
-            throw ApiError.notFound(404, "Token is not found")
+            throw ApiError.notFound("Token is not found")
         }
 
         const user = await User.findById(usersData.id);
@@ -79,7 +79,9 @@ module.exports = new class authService {
         if(!passwordCompare) {
             throw ApiError.BadRequest("Wrong old password");
         }
-
+        if(await bcrypt.compare(password, user.passwordHash)) {
+            throw ApiError.BadRequest("Passwords should not be repeated")
+        }
         if(passwordCompare) {
             const newPassword = await bcrypt.hash(password, 10);
             const user = await User.updateOne({_id: id}, {

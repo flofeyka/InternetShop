@@ -8,12 +8,13 @@ const purchaseRouter = require("./routes/purchaseRouter");
 const favouriteRouter = require("./routes/favouriteRouter");
 const errorMiddleware = require("./middlewares/error-middleware");
 const cartRouter = require("./routes/cartRouter");
-
+const fileUpload = require("express-fileupload")
 const app = express();
 const port = 5000;
-
+app.use(fileUpload({}))
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.static("static"));
 app.use(cors({credentials: true, origin: true}));
 app.use("/api/auth", authRouter);
 app.use("/api/purchases", purchaseRouter);
