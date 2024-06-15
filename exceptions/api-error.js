@@ -17,7 +17,7 @@ module.exports = class ApiError extends Error {
         return new ApiError(400, "Invalid captcha");
     }
 
-    static notFound(_, message = "Not found") {
+    static notFound(message = "Not found") {
         return new ApiError(404, message);
     }
 

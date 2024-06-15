@@ -6,7 +6,6 @@ module.exports = async function(req, res, next) {
             `secret=6LdxNPYpAAAAAHb-JhGTlpNvXCNJeX0jzOw3-Ng6&response=${req.body.captcha}`, {
             method: "POST"
         }).then(_res => _res.json())
-        console.log(captchaVerified)
         if(captchaVerified.success !== true) {
             return next(ApiError.invalidCaptcha());
         }

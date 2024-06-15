@@ -9,7 +9,7 @@ module.exports = new class favouritesService {
             throw ApiError.unAuthorizedError();
         }
         let favouritesArray = [];
-        for(let i = 0; i < user.favourites.length; i++) {
+        for (let i = 0; i < user.favourites.length; i++) {
             const favouriteItem = await Purchase.findById(user.favourites[i]);
             const purchaseDto = new PurchaseDto(favouriteItem);
             favouritesArray.push(purchaseDto);
@@ -20,24 +20,32 @@ module.exports = new class favouritesService {
     async addOne(userId, id) {
         const user = await User.findById(userId);
         const favoritesFound = user.favourites.find(i => i === id);
-        if(favoritesFound) {
+        if (favoritesFound) {
             throw ApiError.BadRequest("This product is already added");
         }
-        const addFavourite = await User.updateOne({_id: userId}, {
-            $push: {favourites: id}
-        });
         const product = await Purchase.findById(id);
-        return new PurchaseDto(product)
+        const favouriteAdded = await User.updateOne({ _id: userId }, {
+            $push: { favourites: product._id }
+        });
+        if (favouriteAdded.modifiedCount === 1) {
+            return new PurchaseDto(product)
+        }
     }
+
 
     async deleteOne(userId, id) {
         const user = await User.findById(userId);
-        const favoritesFound = user.favourites.find(i => i === id);
-        if(!favoritesFound) {
+        const product = await Purchase.findById(id);
+        if(!product) {
+            throw ApiError.BadRequest("There is not this product")
+        }
+        const favoritesFound = user.favourites.find(i => i === product.id);
+        if (!favoritesFound) {
             throw ApiError.BadRequest("The product is not found in favourites list");
         }
-        const deleteFavourite = await User.updateOne({_id: userId}, {
-            $pull: {favourites: id}
+
+        const deleteFavourite = await User.updateOne({ _id: userId }, {
+            $pull: { favourites: product._id }
         });
 
         return deleteFavourite.modifiedCount === 1;

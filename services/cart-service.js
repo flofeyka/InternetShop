@@ -2,13 +2,15 @@ const User = require("../models/User");
 const Purchase = require("../models/Purchase");
 const ApiError = require("../exceptions/api-error");
 const purchaseDto = require("../dtos/purchaseDto");
-const userDto = require("../dtos/userDto")
+const userDto = require("../dtos/userDto");
+
+
 module.exports = new class cartService {
     async updateProductCount(id, productId, count) {
         const user = await User.findById(id);
         const product = await user.cart.find(i => i.id === productId);
         if (!product) {
-            throw ApiError.notFound(404, "The product is not found");
+            throw ApiError.notFound("The product is not found");
         }
 
         const data = await User.updateOne({
@@ -21,7 +23,10 @@ module.exports = new class cartService {
             ]
         });
 
-        return await this.getAll(id);
+        if(data.modifiedCount === 1) {
+            return await this.getAll(id);
+        }
+
     }
 
     async getAll(userId) {
@@ -50,26 +55,28 @@ module.exports = new class cartService {
         if (productFound) {
             throw ApiError.BadRequest("The product is already in the cart");
         }
+        const productAdded = await Purchase.findById(product);
 
         const cartUpdated = await User.updateOne({_id: userId}, {
-            $push: {cart: {id: product, count}}
+            $push: {cart: {id: productAdded._id, count}}
         });
-        const productAdded = await Purchase.findById(product);
         const productDto = new purchaseDto(productAdded);
         if (cartUpdated.modifiedCount === 1) {
             return productDto;
         }
     }
 
-    async deleteOne(userId, product) {
+    async deleteOne(userId, id) {
         const user = await User.findById(userId);
         const productFound = user.cart.find(i => product === i.id);
         if (!productFound) {
             throw ApiError.BadRequest("The product is not found in the cart");
         }
 
+        const product = await Purchase.findById(id);
+
         const cartDeleted = await User.updateOne({_id: userId}, {
-            $pull: {cart: {id: product}}
+            $pull: {cart: {id: product._id}}
         })
 
         return cartDeleted.modifiedCount === 1;
