@@ -7,4 +7,3 @@ module.exports = favouriteRouter;
 favouriteRouter.get("/getAll", authMiddleware, favouriteController.getAllFavourites);
 favouriteRouter.post("/addFavourite/:id", authMiddleware, favouriteController.addOne);
 favouriteRouter.delete("/deleteFavourite/:id", authMiddleware, favouriteController.deleteOne);
-favouriteRouter.post("")

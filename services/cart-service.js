@@ -3,12 +3,12 @@ const Purchase = require("../models/Purchase");
 const ApiError = require("../exceptions/api-error");
 const purchaseDto = require("../dtos/purchaseDto");
 const userDto = require("../dtos/userDto");
-
+const mongoose = require("mongoose");
 
 module.exports = new class cartService {
     async updateProductCount(id, productId, count) {
         const user = await User.findById(id);
-        const product = await user.cart.find(i => i.id === productId);
+        const product = await user.cart.find(i => i.id.toString() === productId);
         if (!product) {
             throw ApiError.notFound("The product is not found");
         }
@@ -19,13 +19,15 @@ module.exports = new class cartService {
             $set: {"cart.$[xxx].count": count}
         }, {
             arrayFilters: [
-                {"xxx.id": productId}
+                {"xxx.id": new mongoose.Types.ObjectId(productId)}
             ]
         });
 
         if(data.modifiedCount === 1) {
             return await this.getAll(id);
         }
+
+        return await this.getAll(id);
 
     }
 
@@ -67,13 +69,13 @@ module.exports = new class cartService {
     }
 
     async deleteOne(userId, id) {
+        const product = await Purchase.findById(id);
         const user = await User.findById(userId);
-        const productFound = user.cart.find(i => product === i.id);
+        const productFound = user.cart.find(i => product._id.toString() === i.id.toString());
         if (!productFound) {
             throw ApiError.BadRequest("The product is not found in the cart");
         }
 
-        const product = await Purchase.findById(id);
 
         const cartDeleted = await User.updateOne({_id: userId}, {
             $pull: {cart: {id: product._id}}

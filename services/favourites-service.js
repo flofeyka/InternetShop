@@ -19,7 +19,7 @@ module.exports = new class favouritesService {
 
     async addOne(userId, id) {
         const user = await User.findById(userId);
-        const favoritesFound = user.favourites.find(i => i === id);
+        const favoritesFound = user.favourites.find(i => i.toString() === id.toString());
         if (favoritesFound) {
             throw ApiError.BadRequest("This product is already added");
         }
@@ -39,7 +39,7 @@ module.exports = new class favouritesService {
         if(!product) {
             throw ApiError.BadRequest("There is not this product")
         }
-        const favoritesFound = user.favourites.find(i => i === product.id);
+        const favoritesFound = user.favourites.find(i => i.toString() === product.id.toString());
         if (!favoritesFound) {
             throw ApiError.BadRequest("The product is not found in favourites list");
         }
