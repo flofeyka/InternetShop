@@ -31,6 +31,7 @@ module.exports = new class authService {
         }
         const passwordHash = await bcrypt.hash(password, 10);
         const createdUser = await User.create({
+            image: "null",
             name, email, phoneNumber, passwordHash, createdAt: new Date()
         });
 
