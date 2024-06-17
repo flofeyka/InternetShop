@@ -8,11 +8,6 @@ const fs = require("fs");
 module.exports = new (class profileService {
   async uploadUsersImage(userId, file) {
     const user = await User.findById(userId);
-    if (user.image) {
-      fs.unlinkSync(process.env.staticPath + "\\" + user.image);
-      user.image = "";
-      await user.save();
-    }
     const avatarName = Uuid.v4() + ".jpg";
     file.mv(process.env.staticPath + "\\" + avatarName);
     user.image = avatarName;
@@ -21,7 +16,6 @@ module.exports = new (class profileService {
   }
 
   async deleteUsersImage(userId) {
-    console.log(process.env.staticPath);
     const user = await User.findById(userId);
     fs.unlinkSync(process.env.staticPath + "\\" + user.image);
     user.image = "";
@@ -112,7 +106,7 @@ module.exports = new (class profileService {
   }
 
   async setOwner(email) {
-    const user = await User.findOne({email});
+    const user = await User.findOne({ email });
     if (!user) {
       throw ApiError.notFound("This user is not found");
     }
