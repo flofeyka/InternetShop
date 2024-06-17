@@ -28,7 +28,7 @@ app.use(errorMiddleware);
 
 const start = () => {
     try {
-        mongoose.connect("mongodb://localhost:27017/internetShop", {
+        mongoose.connect(process.env.DB_URL, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
