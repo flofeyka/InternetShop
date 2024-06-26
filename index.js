@@ -12,7 +12,7 @@ const cartRouter = require("./routes/cartRouter");
 const fileUpload = require("express-fileupload");
 const orderRouter = require('./routes/orderRouter');
 
-
+const PORT = process.env.PORT || 5050;
 const app = express();
 app.use(fileUpload())
 app.use(express.json());
@@ -33,7 +33,7 @@ const start = () => {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
-        app.listen(process.env.PORT || 5050, () => console.log(`Server is started on ${port} port`));
+        app.listen(PORT, () => console.log(`Server is started on ${PORT} port`));
     } catch(e) {
         console.log(e);
     }

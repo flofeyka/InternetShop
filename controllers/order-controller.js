@@ -2,7 +2,7 @@ const orderService = require("../services/order-service");
 
 
 module.exports = new (class orderController {
-  async getUserOrders(req, res, next) {
+  async getOrders(req, res, next) {
     try {
       const ordersFound = await orderService.getOrders(req.user.id, req.query.sort);
       return res.json(ordersFound);
@@ -10,24 +10,6 @@ module.exports = new (class orderController {
       next(e);
     }
   }
-
-  // async getMyOrders(req, res, next) {
-  //   try {
-  //     const ordersFound = await orderService.getMyOrders(req.user.id);
-  //     return res.json(ordersFound);
-  //   } catch (e) {
-  //     next(e);
-  //   }
-  // }
-
-  // async getNotVerifiedOrders(req, res, next) {
-  //   try {
-  //       const ordersFound = await orderService.getNotVerifiedOrders();
-  //       return res.json(ordersFound);
-  //   } catch(e) {
-  //       next(e);
-  //   }
-  // }
 
   async verifyOrder(req, res, next) {
     try {

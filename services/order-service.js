@@ -6,31 +6,6 @@ const Purchase = require("../models/Purchase");
 const User = require("../models/User");
 
 module.exports = new (class orderService {
-  async getMyOrders(userId) {
-    const orders = await Order.find({ waiter: userId });
-    const orderList = [];
-    for (let i = 0; i < orders.length; i++) {
-      const product = await Purchase.findById(orders[i].productsData.id);
-      const productDto = new PurchaseDto(product);
-      const orderDto = new OrderDto({
-        _id: orders[i]._id,
-        count: orders[i].productsData.count,
-        isTaken: orders[i].isTaken,
-        isVerified: orders[i].isVerified,
-        productId: orders[i].productsData.id,
-        address: orders[i].address,
-        finalPrice: orders[i].finalPrice,
-        createdAt: orders[i].createdAt,
-        canceled: orders[i].canceled,
-        ...productDto,
-        ...orders[i],
-      });
-      orderList.push(orderDto);
-    }
-
-    return orderList;
-  }
-
   async HaveOrder(userId, products, address, payment) {
     let orders = [];
 
@@ -65,11 +40,9 @@ module.exports = new (class orderService {
         throw ApiError.BadRequest("Cannot order the purchase");
       }
 
+
       const order = await Order.create({
-        productsData: {
-          id: products[i].id,
-          count: products[i].count,
-        },
+        productId: products[i].id,
         waiter: userId,
         finalPrice: products[i].count * purchase.price,
         address: {
@@ -79,6 +52,8 @@ module.exports = new (class orderService {
           ...address,
         },
         canceled: false,
+        isTaken: false,
+        isVerified: false,
         payment,
         createdAt: Date.now(),
       });
@@ -120,59 +95,6 @@ module.exports = new (class orderService {
     return orders;
   }
 
-  async getNotTakenOrders() {
-    const orderList = [];
-    for (let i = 0; i < orders.length; i++) {
-      const product = await Purchase.findById(orders[i].productsData.id);
-      const productDto = new PurchaseDto(product);
-      const user = await User.findById(orders[i].waiter);
-      const orderDto = new OrderDto({
-        _id: orders[i]._id,
-        count: orders[i].productsData.count,
-        productId: orders[i].productsData.id,
-        address: orders[i].address,
-        isTaken: orders[i].isTaken,
-        isVerified: orders[i].isVerified,
-        waiterName: user.name,
-        phoneNumber: user.phoneNumber,
-        email: user.email,
-        finalPrice: orders[i].finalPrice,
-        ...productDto,
-        ...orders[i],
-      });
-      orderList.push(orderDto);
-    }
-
-    return orderList;
-  }
-
-  async getTakenOrders(userId) {
-    const orders = await Order.find({ waiter: userId, isTaken: true, isVerified: true });
-    const orderList = [];
-    for (let i = 0; i < orders.length; i++) {
-      const product = await Purchase.findById(orders[i].productsData.id);
-      const productDto = new PurchaseDto(product);
-      const user = await User.findById(orders[i].waiter);
-      const orderDto = new OrderDto({
-        _id: orders[i]._id,
-        count: orders[i].productsData.count,
-        productId: orders[i].productsData.id,
-        address: orders[i].address,
-        waiterName: user.name,
-        isTaken: orders[i].isTaken,
-        isVerified: orders[i].isVerified,
-        phoneNumber: user.phoneNumber,
-        email: user.email,
-        finalPrice: orders[i].finalPrice,
-        ...productDto,
-        ...orders[i],
-      });
-      orderList.push(orderDto);
-    }
-
-    return orderList;
-  }
-
   async verifyOrder(id) {
     const orderFound = await Order.findOne({ _id: id, isVerified: false });
     orderFound.isVerified = true;
@@ -209,31 +131,33 @@ module.exports = new (class orderService {
   }
 
   async getOrders(userId, sort) {
+    const user = await User.findById(userId);
+    if(!user) {
+      throw ApiError.unAuthorizedError();
+    }
     let orders = [];
     switch (sort) {
       case "notVerified":
-        orders.push(await Order.find({ isVerified: false, canceled: false }));
+        orders = user.isOwner ? await Order.find({ isVerified: false, canceled: false }) : [];
         break;
       case "takenOrders":
-        orders.push(await Order.find({ isTaken: true, waiter: userId }))
+        orders = user.isOwner ? await Order.find({ isTaken: true, waiter: userId }) : [];
         break;
       case "notTakenOrders":
-        orders.push(await Order.find({ isTaken: false, canceled: false, isVerified: true }));
+        orders = user.isOwner ? await Order.find({ isTaken: false, canceled: false, isVerified: true }) : [];
         break;
       case "mineOrders":
-        orders.push(await Order.find({ waiter: userId }));
+        orders = await Order.find({ waiter: userId });
         break;
       default:
-        orders.push(await Order.find({}));
+        orders = await Order.find({});
         break;
     }
-
     return Promise.all(orders.map(async order => {
-      const orderDto = new OrderDto(order);
-      const product = await Purchase.findById(order.productsData.id);
+      const product = await Purchase.findById(order.productId);
       const user = await User.findById(order.waiter);
-
-      return orderDto = new OrderDto({_id: order._id, ...orderDto, ...product, ...user});
+      const orderDto = new OrderDto({order, product, user});
+      return orderDto;
     }));
   }
 

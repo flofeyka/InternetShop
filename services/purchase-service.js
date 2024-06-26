@@ -2,8 +2,7 @@ const User = require("../models/User");
 const Purchase = require("../models/Purchase");
 const PurchaseDto = require("../dtos/purchaseDto");
 const ApiError = require("../exceptions/api-error");
-const Order = require("../models/Order");
-const OrderDto = require("../dtos/orderDto");
+const XLSX = require("xlsx");
 const Uuid = require("uuid");
 module.exports = new (class purchaseService {
   async editProduct(id, name, description, price, sort, quantity) {
@@ -122,6 +121,24 @@ module.exports = new (class purchaseService {
       const ProductDto = new PurchaseDto(newProduct);
       return ProductDto;
     }
+  }
+
+  async parseProducts(file) {
+    if(!file) {
+      throw ApiError.BadRequest("Invalid Excel file");
+    }
+
+    const excelData = XLSX.read(file, {
+      type: "binary"
+    });
+    const data = Object.keys(excelData.Sheets).map(name => ({
+      name,
+      data: XLSX.utils.sheet_to_json(excelData.Sheets[name])
+    }));
+
+    console.log(data.data);
+
+    return data.data;
   }
 
   async getAll(sort = "popularity", search = "", page = 1, pageSize = 10) {
