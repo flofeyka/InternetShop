@@ -15,3 +15,4 @@ purchaseRouter.get("/get", purchaseController.getAll);
 purchaseRouter.get("/getHistory", authMiddleware, purchaseController.getHistory);
 purchaseRouter.get("/getOneById/:id", authMiddleware, purchaseController.getOneById);
 purchaseRouter.delete("/clearHistory", authMiddleware, purchaseController.clearHistory);
+purchaseRouter.post("/parseProducts", authMiddleware, ownerMiddleware, purchaseController.parseProducts);

@@ -16,21 +16,21 @@ module.exports = class OrderDto {
     createdAt;
 
     constructor(model) {
-        this.id = model._id;
-        this.name = model.name,
-        this.productId = model.productId;
-        this.image = model.image;
-        this.address = model.address;
-        this.waiterName = model.waiterName,
-        this.phoneNumber = model.phoneNumber,
-        this.email = model.email;
-        this.waiter = model.waiter;
-        this.isTaken = model.isTaken;
-        this.isVerified = model.isVerified;
-        this.canceled = model.canceled;
-        this.finalPrice = model.finalPrice;
-        this.count = model.count;
-        this.isVerified = model.isVerified;
-        this.createdAt = model.createdAt;
+        this.id = model.order._id;
+        this.name = model.product.name,
+        this.productId = model.order.productId;
+        this.image = model.product.image;
+        this.address = model.order.address;
+        this.waiterName = model.user.waiterName,
+        this.phoneNumber = model.user.phoneNumber,
+        this.email = model.user.email;
+        this.waiter = model.order.waiter;
+        this.isTaken = model.order.isTaken;
+        this.isVerified = model.order.isVerified;
+        this.canceled = model.order.canceled;
+        this.finalPrice = model.order.finalPrice;
+        this.count = model.order.count;
+        this.isVerified = model.order.isVerified;
+        this.createdAt = model.order.createdAt;
     }
 }

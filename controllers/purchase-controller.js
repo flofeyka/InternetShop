@@ -9,6 +9,15 @@ module.exports = new (class purchaseController {
       next(e);
     }
   }
+
+  async parseProducts(req, res, next) {
+    try {
+      const productsParsed = await purchaseService.parseProducts(req.files.file);
+      return res.json(productsParsed); 
+    } catch(e) {
+      next(e);
+    }
+  }
   
   async editProduct(req, res, next) {
     try {
