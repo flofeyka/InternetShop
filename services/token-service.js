@@ -10,24 +10,24 @@ module.exports = new class tokenService {
             expiresIn: "30d"
         })
 
-        return {accessToken, refreshToken};
+        return { accessToken, refreshToken };
     }
 
     async findToken(refreshToken) {
-        return Token.findOne({refreshToken});
+        return Token.findOne({ refreshToken });
     }
 
     validateAccessToken(accessToken) {
-        return jwt.verify(accessToken, "JWT-SECRET-ACCESS");
+        return jwt.verify(accessToken, process.env.JWT_SECRET_ACCESS);
     }
 
     validateRefreshToken(refreshToken) {
-        return jwt.verify(refreshToken, "JWT-SECRET-REFRESH");
+        return jwt.verify(refreshToken, process.env.JWT_SECRET_REFRESH);
     }
 
     async saveToken(id, refreshToken) {
-        const tokenData = await Token.findOne({user: id});
-        if(tokenData) {
+        const tokenData = await Token.findOne({ user: id });
+        if (tokenData) {
             tokenData.refreshToken = refreshToken;
             return tokenData.save();
         }
@@ -39,6 +39,6 @@ module.exports = new class tokenService {
     }
 
     removeToken(refreshToken) {
-        return Token.deleteOne({refreshToken});
+        return Token.deleteOne({ refreshToken });
     }
 }
