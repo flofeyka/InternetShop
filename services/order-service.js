@@ -121,7 +121,6 @@ module.exports = new (class orderService {
   }
 
   async getNotTakenOrders() {
-    const orders = await Order.find({ isTaken: false, canceled: false, isVerified: true });
     const orderList = [];
     for (let i = 0; i < orders.length; i++) {
       const product = await Purchase.findById(orders[i].productsData.id);
@@ -209,9 +208,33 @@ module.exports = new (class orderService {
     return orderList;
   }
 
-  async getOrders() {
-    const ordersFound = await Order.find({});
-    return ordersFound;
+  async getOrders(userId, sort) {
+    let orders = [];
+    switch (sort) {
+      case "notVerified":
+        orders.push(await Order.find({ isVerified: false, canceled: false }));
+        break;
+      case "takenOrders":
+        orders.push(await Order.find({ isTaken: true, waiter: userId }))
+        break;
+      case "notTakenOrders":
+        orders.push(await Order.find({ isTaken: false, canceled: false, isVerified: true }));
+        break;
+      case "mineOrders":
+        orders.push(await Order.find({ waiter: userId }));
+        break;
+      default:
+        orders.push(await Order.find({}));
+        break;
+    }
+
+    return Promise.all(orders.map(async order => {
+      const orderDto = new OrderDto(order);
+      const product = await Purchase.findById(order.productsData.id);
+      const user = await User.findById(order.waiter);
+
+      return orderDto = new OrderDto({_id: order._id, ...orderDto, ...product, ...user});
+    }));
   }
 
   async takeAnOrder(userId, id) {
