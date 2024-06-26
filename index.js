@@ -11,8 +11,9 @@ const errorMiddleware = require("./middlewares/error-middleware");
 const cartRouter = require("./routes/cartRouter");
 const fileUpload = require("express-fileupload");
 const orderRouter = require('./routes/orderRouter');
+
+
 const app = express();
-const port = 5000;
 app.use(fileUpload())
 app.use(express.json());
 app.use(cookieParser());
@@ -32,7 +33,7 @@ const start = () => {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
-        app.listen(port, () => console.log(`Server is started on ${port} port`));
+        app.listen(process.env.PORT || 5050, () => console.log(`Server is started on ${port} port`));
     } catch(e) {
         console.log(e);
     }
