@@ -1,9 +1,12 @@
 const User = require("../models/User");
+const UserDto = require("../dtos/userDto");
 const Purchase = require("../models/Purchase");
 const PurchaseDto = require("../dtos/purchaseDto");
 const ApiError = require("../exceptions/api-error");
 const XLSX = require("xlsx");
 const Uuid = require("uuid");
+
+
 module.exports = new (class purchaseService {
   async editProduct(id, name, description, price, sort, quantity) {
     const updatedProduct = await Purchase.updateOne(
@@ -124,7 +127,7 @@ module.exports = new (class purchaseService {
   }
 
   async parseProducts(file) {
-    if(!file) {
+    if (!file) {
       throw ApiError.BadRequest("Invalid Excel file");
     }
 
@@ -148,8 +151,8 @@ module.exports = new (class purchaseService {
           sort === "expensive"
             ? { price: -1 }
             : sort === "cheap"
-            ? { price: 1 }
-            : { viewsCount: -1 },
+              ? { price: 1 }
+              : { viewsCount: -1 },
       },
       {
         $match: {
@@ -183,7 +186,19 @@ module.exports = new (class purchaseService {
 
     result = result[0];
     result.metaData = { ...result.metaData[0], count: result.data.length };
-    result.data = result.data.map((i) => new PurchaseDto(i));
+    result.data = await Promise.all(result.data.map(async item => {
+      const owner = await User.findById(item.owner);
+      const ownerDto = new UserDto(owner);
+      const purchaseDto = new PurchaseDto({
+        ...item, owner: {
+          id: ownerDto.id,
+          name: ownerDto.name,
+          email: ownerDto.email
+        }
+      });
+      return purchaseDto;
+    }))
+
     return result;
   }
 
