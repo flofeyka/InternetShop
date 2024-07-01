@@ -6,9 +6,9 @@ class authController {
             const {email, password} = req.body;
             const usersData = await authService.login(email, password);
             res.cookie("refreshToken", usersData.refreshToken, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
-                maxAge: 30 * 24 * 60 * 60 * 1000
-            });
+              });
 
             return res.json(usersData);
         } catch (e) {
@@ -21,9 +21,9 @@ class authController {
             const {name, email, phoneNumber, password} = req.body;
             const data = await authService.register(name, email, phoneNumber, password);
             res.cookie("refreshToken", data.refreshToken, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
-                maxAge: 30 * 24 * 60 * 60 * 1000
-            });
+              });
             return res.json(data);
         } catch (e) {
             next(e)
@@ -35,9 +35,9 @@ class authController {
             const {refreshToken} = req.cookies;
             const usersData = await authService.refresh(refreshToken);
             res.cookie("refreshToken", usersData.refreshToken, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
-                maxAge: 30 * 24 * 60 * 60 * 1000
-            })
+            });
             return res.json(usersData);
         } catch (e) {
             next(e);

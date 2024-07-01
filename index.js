@@ -19,7 +19,7 @@ app.use(fileUpload())
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static("static"));
-app.use(cors({credentials: true, origin: true}));
+app.use(cors({ credentials: true, origin: true }));
 app.use("/api/auth", authRouter);
 app.use("/api/purchases", purchaseRouter);
 app.use("/api/profile", profileRouter);
@@ -35,7 +35,7 @@ const start = () => {
             useUnifiedTopology: true
         });
         app.listen(PORT, () => console.log(`Server is started on ${PORT} port`));
-    } catch(e) {
+    } catch (e) {
         console.log(e);
     }
 }
