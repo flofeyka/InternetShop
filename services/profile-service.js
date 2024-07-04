@@ -9,7 +9,7 @@ module.exports = new (class profileService {
   async uploadUsersImage(userId, file, path) {
     const user = await User.findById(userId);
     const avatarName = Uuid.v4() + ".jpg";
-    file.mv(path + "\\" + avatarName);
+    file.mv(path + "/" + avatarName);
     user.image = avatarName;
     await user.save();
     return avatarName;
@@ -17,7 +17,7 @@ module.exports = new (class profileService {
 
   async deleteUsersImage(userId, path) {
     const user = await User.findById(userId);
-    fs.unlinkSync(path + "\\" + user.image);
+    fs.unlinkSync(path + "/" + user.image);
     user.image = "";
     await user.save();
   }

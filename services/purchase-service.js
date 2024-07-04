@@ -28,7 +28,7 @@ module.exports = new (class purchaseService {
   async editProductImage(file, id, path) {
     const product = await Purchase.findById(id);
     const imageName = Uuid.v4() + ".jpg";
-    file.mv(path + "\\" + imageName);
+    file.mv(path + "/" + imageName);
     product.image = imageName;
     product.save();
   }
