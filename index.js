@@ -11,15 +11,18 @@ const errorMiddleware = require("./middlewares/error-middleware");
 const cartRouter = require("./routes/cartRouter");
 const fileUpload = require("express-fileupload");
 const orderRouter = require('./routes/orderRouter');
+const filePathMiddleware = require('./middlewares/filePath-middleware');
+const path = require('path');
 
 const PORT = process.env.PORT || 5050;
 const app = express();
 
-app.use(fileUpload())
+app.use(fileUpload());
+app.use(filePathMiddleware(path.resolve(__dirname, 'static')));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static("static"));
-app.use(cors({ credentials: true, origin: true }));
+app.use(cors({origin: true, credentials: true }));
 app.use("/api/auth", authRouter);
 app.use("/api/purchases", purchaseRouter);
 app.use("/api/profile", profileRouter);

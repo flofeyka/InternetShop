@@ -3,7 +3,7 @@ const purchaseService = require("../services/purchase-service");
 module.exports = new (class purchaseController {
   async editProductImage(req, res, next) {
     try {
-      const edited = await purchaseService.editProductImage(req.files.file, req.params.id);
+      const edited = await purchaseService.editProductImage(req.files.file, req.params.id, req.filePath);
       return res.json(edited);
     } catch(e) {
       next(e);

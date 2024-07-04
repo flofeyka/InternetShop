@@ -5,7 +5,8 @@ module.exports = new (class profileController {
     try {
       const data = await profileService.uploadUsersImage(
         req.user.id,
-        req.files.file
+        req.files.file,
+        req.filePath
       );
       return res.json(data);
     } catch (e) {
@@ -15,7 +16,7 @@ module.exports = new (class profileController {
 
   async deleteUsersImage(req, res, next) {
     try {
-      const data = await profileService.deleteUsersImage(req.user.id);
+      const data = await profileService.deleteUsersImage(req.user.id, req.filePath);
       return res.json(data);
     } catch (e) {
       next(e);
