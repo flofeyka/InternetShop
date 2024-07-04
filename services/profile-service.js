@@ -6,18 +6,18 @@ const Uuid = require("uuid");
 const config = require("config");
 const fs = require("fs");
 module.exports = new (class profileService {
-  async uploadUsersImage(userId, file) {
+  async uploadUsersImage(userId, file, path) {
     const user = await User.findById(userId);
     const avatarName = Uuid.v4() + ".jpg";
-    file.mv(process.env.staticPath + "\\" + avatarName);
+    file.mv(path + "\\" + avatarName);
     user.image = avatarName;
     await user.save();
     return avatarName;
   }
 
-  async deleteUsersImage(userId) {
+  async deleteUsersImage(userId, path) {
     const user = await User.findById(userId);
-    fs.unlinkSync(process.env.staticPath + "\\" + user.image);
+    fs.unlinkSync(path + "\\" + user.image);
     user.image = "";
     await user.save();
   }
